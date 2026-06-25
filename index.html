@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="HK Sheet">
+<title>Housekeeping Tasksheet</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  :root {
+    --green: #1D9E75;
+    --green-dark: #0F6E56;
+    --green-light: #E1F5EE;
+    --green-text: #0F6E56;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --red: #E24B4A;
+    --red-light: #FCEBEB;
+    --red-text: #A32D2D;
+    --bg: #F7F7F5;
+    --surface: #FFFFFF;
+    --surface2: #F1F0EC;
+    --border: rgba(0,0,0,0.1);
+    --border-mid: rgba(0,0,0,0.18);
+    --text: #1A1A18;
+    --text2: #6B6A66;
+    --text3: #9B9A96;
+    --radius: 10px;
+    --radius-sm: 7px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* HEADER */
+  .app-header {
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+    padding: 14px 16px 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .app-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .app-title .icon-wrap {
+    width: 32px; height: 32px;
+    background: var(--green);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 17px;
+  }
+  .app-title h1 { font-size: 16px; font-weight: 600; }
+  .app-title span { font-size: 12px; color: var(--text2); display: block; font-weight: 400; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 0;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px 0;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text2);
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: color .15s;
+  }
+  .tab-btn.active { border-bottom-color: var(--green); color: var(--green-dark); font-weight: 500; }
+  .badge-count {
+    background: var(--red);
+    color: #fff;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    display: none;
+  }
+
+  /* MAIN */
+  .main { padding: 16px; max-width: 600px; margin: 0 auto; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* SECTION */
+  .section-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border);
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-title i { font-size: 14px; }
+
+  /* FIELDS */
+  .field { margin-bottom: 10px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--surface);
+    border: 0.5px solid var(--border-mid);
+    border-radius: var(--radius-sm);
+    padding: 9px 11px;
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .field textarea { resize: vertical; min-height: 52px; line-height: 1.5; }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(29,158,117,.12);
+  }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* TASKS */
+  .task-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .task-row:active { background: #E8E7E2; }
+  .task-row input[type=checkbox] {
+    width: 17px; height: 17px;
+    accent-color: var(--green);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .task-row span { font-size: 13px; line-height: 1.4; }
+  .task-row.done span { text-decoration: line-through; color: var(--text3); }
+
+  /* ROOM ENTRIES */
+  .room-entry {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    margin-bottom: 8px;
+    border: 0.5px solid var(--border);
+  }
+  .room-entry-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .room-sn {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    background: var(--surface);
+    border-radius: 5px;
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    border: 0.5px solid var(--border);
+  }
+  .rm-btn {
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    font-size: 17px;
+    padding: 2px 4px;
+    border-radius: 5px;
+    line-height: 1;
+  }
+  .rm-btn:hover { color: var(--red); background: var(--red-light); }
+
+  .room-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; margin-bottom: 7px; }
+  .room-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 7px; }
+  .field-sm label { font-size: 11px; color: var(--text2); display: block; margin-bottom: 3px; }
+  .field-sm input, .field-sm select {
+    width: 100%;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--surface);
+    border: 0.5px solid var(--border-mid);
+    border-radius: 6px;
+    padding: 7px 8px;
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .field-sm textarea {
+    width: 100%;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--surface);
+    border: 0.5px solid var(--border-mid);
+    border-radius: 6px;
+    padding: 7px 8px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 48px;
+    line-height: 1.4;
+  }
+  .field-sm input:focus, .field-sm select:focus, .field-sm textarea:focus {
+    outline: none;
+    border-color: var(--green);
+  }
+
+  .add-row-btn {
+    width: 100%;
+    padding: 9px;
+    border: 1px dashed var(--border-mid);
+    border-radius: var(--radius-sm);
+    background: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text2);
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .add-row-btn:hover { background: var(--surface2); }
+
+  /* BUTTONS */
+  .btn-primary {
+    width: 100%;
+    padding: 13px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: background .15s;
+  }
+  .btn-primary:hover { background: var(--green-dark); }
+  .btn-primary:disabled { background: #B0B0AA; cursor: not-allowed; }
+
+  .btn-outline {
+    flex: 1;
+    padding: 10px;
+    background: none;
+    color: var(--text);
+    border: 0.5px solid var(--border-mid);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+  .btn-outline:hover { background: var(--surface2); }
+  .btn-approve {
+    flex: 1; padding: 9px;
+    background: none;
+    border: 0.5px solid var(--green);
+    border-radius: var(--radius-sm);
+    color: var(--green-dark);
+    font-size: 13px; cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+  .btn-approve:hover { background: var(--green-light); }
+  .btn-return {
+    flex: 1; padding: 9px;
+    background: none;
+    border: 0.5px solid var(--red);
+    border-radius: var(--radius-sm);
+    color: var(--red-text);
+    font-size: 13px; cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+  .btn-return:hover { background: var(--red-light); }
+
+  /* MANAGER */
+  .mgr-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .mgr-header h2 { font-size: 16px; font-weight: 600; }
+
+  .sub-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .sub-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .sub-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+  .sub-meta { font-size: 12px; color: var(--text2); }
+
+  .badge {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge-pending { background: var(--amber-light); color: var(--amber); }
+  .badge-approved { background: var(--green-light); color: var(--green-text); }
+  .badge-returned { background: var(--red-light); color: var(--red-text); }
+
+  .table-wrap { overflow-x: auto; margin: 10px 0; -webkit-overflow-scrolling: touch; }
+  .room-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    min-width: 540px;
+  }
+  .room-table th {
+    background: var(--surface2);
+    color: var(--text2);
+    font-weight: 500;
+    padding: 5px 7px;
+    border: 0.5px solid var(--border);
+    text-align: left;
+    white-space: nowrap;
+  }
+  .room-table td {
+    padding: 5px 7px;
+    border: 0.5px solid var(--border);
+    color: var(--text);
+    white-space: nowrap;
+    vertical-align: top;
+  }
+  .room-table td.wrap-cell { white-space: normal; min-width: 100px; }
+
+  .status-pill {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+  .pill-clean { background: var(--green-light); color: var(--green-text); }
+  .pill-dirty { background: var(--amber-light); color: var(--amber); }
+  .pill-other { background: var(--surface2); color: var(--text2); }
+
+  .mgr-actions { display: flex; gap: 7px; margin-top: 10px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text3);
+  }
+  .empty-state i { font-size: 40px; display: block; margin-bottom: 10px; }
+  .empty-state p { font-size: 14px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: #1A1A18;
+    color: #fff;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity .25s, transform .25s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 999;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* SPINNER */
+  .spinner {
+    display: inline-block;
+    width: 15px; height: 15px;
+    border: 2px solid rgba(255,255,255,.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    vertical-align: -2px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* TASK PROGRESS BAR */
+  .task-progress {
+    height: 3px;
+    background: var(--border);
+    border-radius: 3px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .task-progress-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 3px;
+    transition: width .3s;
+  }
+
+  @media (max-width: 380px) {
+    .two-col { grid-template-columns: 1fr; }
+    .room-grid-3 { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* PIN OVERLAY */
+  .pin-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .pin-overlay.show { display: flex; }
+  .pin-box {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 28px 24px 24px;
+    width: 300px;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .pin-icon {
+    width: 48px; height: 48px;
+    background: var(--green-light);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+    font-size: 24px;
+    color: var(--green-dark);
+  }
+  .pin-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .pin-sub { font-size: 12px; color: var(--text2); margin-bottom: 18px; }
+  .pin-dots {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .pin-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--border-mid);
+    background: transparent;
+    transition: background .15s, border-color .15s;
+  }
+  .pin-dot.filled { background: var(--green); border-color: var(--green); }
+  .pin-dot.error { background: var(--red); border-color: var(--red); }
+  .pin-keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .pin-key {
+    padding: 14px 0;
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text);
+    transition: background .1s;
+  }
+  .pin-key:active { background: #E0DFD9; }
+  .pin-key.del { font-size: 14px; color: var(--text2); }
+  .pin-error { font-size: 12px; color: var(--red); min-height: 18px; }
+  .pin-cancel {
+    background: none; border: none; cursor: pointer;
+    font-size: 13px; color: var(--text2); font-family: inherit;
+    margin-top: 4px; padding: 4px 8px;
+  }
+  .pin-cancel:hover { color: var(--text); }
+
+  /* LOCK ICON on manager tab */
+  .lock-icon { font-size: 12px; color: var(--text3); margin-left: 2px; }
+  .mgr-unlocked .lock-icon { display: none; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-title">
+    <div class="icon-wrap"><i class="ti ti-building"></i></div>
+    <div>
+      <h1>Housekeeping sheet</h1>
+      <span>Daily room tasksheet</span>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('staff', this)">
+      <i class="ti ti-clipboard-list"></i> Staff
+    </button>
+    <button class="tab-btn" onclick="switchTab('manager', this)">
+      <i class="ti ti-layout-dashboard"></i> Manager
+      <span class="badge-count" id="pending-count">0</span>
+      <i class="ti ti-lock lock-icon" id="mgr-lock-icon"></i>
+    </button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ====== STAFF VIEW ====== -->
+  <div class="view active" id="tab-staff">
+
+    <div class="section-card">
+      <div class="section-title"><i class="ti ti-user"></i> Staff details</div>
+      <div class="two-col">
+        <div class="field">
+          <label>Staff name</label>
+          <input type="text" id="f-name" placeholder="e.g. Amaka Obi" autocomplete="name">
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="f-date">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title"><i class="ti ti-checks"></i> Daily tasks</div>
+      <div class="task-progress"><div class="task-progress-fill" id="task-bar" style="width:0%"></div></div>
+      <div id="task-list"></div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title"><i class="ti ti-table"></i> Room log</div>
+      <div id="room-list"></div>
+      <button class="add-row-btn" onclick="addRoom()">
+        <i class="ti ti-plus"></i> Add room row
+      </button>
+    </div>
+
+    <button class="btn-primary" id="submit-btn" onclick="submitSheet()" style="margin-top:4px">
+      <i class="ti ti-send"></i> Submit for review
+    </button>
+
+  </div>
+
+  <!-- ====== MANAGER VIEW ====== -->
+  <div class="view" id="tab-manager">
+
+    <div class="mgr-header">
+      <h2>Submissions</h2>
+      <div style="display:flex;gap:6px">
+        <button class="btn-outline" style="flex:0;padding:8px 12px;font-size:12px" onclick="changePin()">
+          <i class="ti ti-key"></i> Change PIN
+        </button>
+        <button class="btn-outline" style="flex:0;padding:8px 12px;font-size:12px" onclick="lockManager()">
+          <i class="ti ti-lock"></i> Lock
+        </button>
+        <button class="btn-outline" style="flex:0;padding:8px 14px" onclick="exportApproved()">
+          <i class="ti ti-download"></i> Export
+        </button>
+      </div>
+    </div>
+
+    <div id="submissions-list"></div>
+
+  </div>
+
+</div>
+
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-box">
+    <div class="pin-icon"><i class="ti ti-lock"></i></div>
+    <div class="pin-title">Manager access</div>
+    <div class="pin-sub">Enter your 4-digit PIN to continue</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key" onclick="pinPress('0')" style="grid-column:2">0</button>
+      <button class="pin-key del" onclick="pinDelete()"><i class="ti ti-backspace"></i></button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+    <button class="pin-cancel" onclick="pinCancel()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbwt5CvEOkt_SAkhYuVeCzeHL-GoRbazbM9MRYOQYtWHt4qjuDJA_WbCvKLxr2BnbLRSsQ/exec";
+
+/* ---- PIN SETUP ---- */
+const DEFAULT_PIN = "1234";
+let managerPin = localStorage.getItem("hk_pin") || DEFAULT_PIN;
+let pinBuffer = "";
+let mgrUnlocked = false;
+let pendingTab = null;
+
+function switchTab(tab, btn) {
+  if (tab === "manager" && !mgrUnlocked) {
+    pendingTab = { tab, btn };
+    openPinOverlay();
+    return;
+  }
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.getElementById("tab-" + tab).classList.add("active");
+  if (tab === "manager") renderSubmissions();
+}
+
+function openPinOverlay() {
+  pinBuffer = "";
+  document.getElementById("pin-error").textContent = "";
+  updatePinDots();
+  document.getElementById("pin-overlay").classList.add("show");
+}
+
+function closePinOverlay() {
+  document.getElementById("pin-overlay").classList.remove("show");
+  pinBuffer = "";
+  updatePinDots();
+}
+
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(checkPin, 120);
+  }
+}
+
+function pinDelete() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  document.getElementById("pin-error").textContent = "";
+  updatePinDots();
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById("pd" + i);
+    d.className = "pin-dot" + (i < pinBuffer.length ? " filled" : "");
+  }
+}
+
+function checkPin() {
+  if (pinBuffer === managerPin) {
+    mgrUnlocked = true;
+    closePinOverlay();
+    document.getElementById("mgr-lock-icon").style.display = "none";
+    if (pendingTab) {
+      const { tab, btn } = pendingTab;
+      pendingTab = null;
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      document.getElementById("tab-" + tab).classList.add("active");
+      renderSubmissions();
+    }
+    toast("Manager access granted", "#1D9E75");
+  } else {
+    for (let i = 0; i < 4; i++) document.getElementById("pd" + i).className = "pin-dot error";
+    document.getElementById("pin-error").textContent = "Incorrect PIN. Try again.";
+    setTimeout(() => { pinBuffer = ""; updatePinDots(); document.getElementById("pin-error").textContent = ""; }, 900);
+  }
+}
+
+function pinCancel() {
+  pendingTab = null;
+  closePinOverlay();
+}
+
+function changePin() {
+  const np = prompt("Enter new 4-digit PIN:");
+  if (!np) return;
+  if (!/^\d{4}$/.test(np)) { toast("PIN must be exactly 4 digits", "#E24B4A"); return; }
+  managerPin = np;
+  localStorage.setItem("hk_pin", np);
+  toast("PIN updated successfully", "#1D9E75");
+}
+
+function lockManager() {
+  mgrUnlocked = false;
+  document.getElementById("mgr-lock-icon").style.display = "";
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.querySelector(".tab-btn").classList.add("active");
+  document.getElementById("tab-staff").classList.add("active");
+  toast("Manager tab locked");
+}
+
+const DEFAULT_TASKS = [
+  "Clean all assigned rooms",
+  "Restock amenities & toiletries",
+  "Replace used linen and towels",
+  "Report maintenance issues",
+  "Check and restock minibar",
+  "Submit end-of-shift report",
+  "Return master keys to front desk"
+];
+
+const STATUS_OPTS = ["Dirty", "Clean", "DND", "Check-out", "Vacant", "OOO"];
+
+let tasks = DEFAULT_TASKS.map(t => ({ text: t, done: false }));
+let rooms = [];
+let submissions = [];
+
+try { submissions = JSON.parse(localStorage.getItem("hk_subs") || "[]"); } catch(e) {}
+
+function save() {
+  try { localStorage.setItem("hk_subs", JSON.stringify(submissions)); } catch(e) {}
+  updateBadge();
+}
+
+function updateBadge() {
+  const n = submissions.filter(s => s.status === "pending").length;
+  const el = document.getElementById("pending-count");
+  el.style.display = n > 0 ? "inline" : "none";
+  el.textContent = n;
+}
+
+function toast(msg, color) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.background = color || "#1A1A18";
+  t.classList.add("show");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove("show"), 2800);
+}
+
+/* ---- TASKS ---- */
+function renderTasks() {
+  const el = document.getElementById("task-list");
+  el.innerHTML = "";
+  tasks.forEach((t, i) => {
+    const d = document.createElement("div");
+    d.className = "task-row" + (t.done ? " done" : "");
+    d.innerHTML = `<input type="checkbox" ${t.done ? "checked" : ""} onchange="toggleTask(${i})"><span>${t.text}</span>`;
+    el.appendChild(d);
+  });
+  updateTaskBar();
+}
+
+function toggleTask(i) {
+  tasks[i].done = !tasks[i].done;
+  const rows = document.querySelectorAll(".task-row");
+  if (rows[i]) rows[i].className = "task-row" + (tasks[i].done ? " done" : "");
+  updateTaskBar();
+}
+
+function updateTaskBar() {
+  const pct = Math.round((tasks.filter(t => t.done).length / tasks.length) * 100);
+  document.getElementById("task-bar").style.width = pct + "%";
+}
+
+/* ---- ROOMS ---- */
+function addRoom() {
+  const id = Date.now() + Math.random();
+  rooms.push({ id, sn: rooms.length + 1, room: "", initStatus: "Dirty", finalStatus: "Clean", timeIn: "", timeOut: "", remark: "", observation: "" });
+  renderRooms();
+}
+
+function removeRoom(id) {
+  rooms = rooms.filter(r => r.id !== id);
+  rooms.forEach((r, i) => r.sn = i + 1);
+  renderRooms();
+}
+
+function updateRoom(id, key, val) {
+  const r = rooms.find(x => x.id === id);
+  if (r) r[key] = val;
+}
+
+function renderRooms() {
+  const el = document.getElementById("room-list");
+  el.innerHTML = "";
+  rooms.forEach(r => {
+    const d = document.createElement("div");
+    d.className = "room-entry";
+    d.innerHTML = `
+      <div class="room-entry-header">
+        <div class="room-sn">${r.sn}</div>
+        <div style="font-size:12px;color:var(--text2);font-weight:500">Room entry</div>
+        <button class="rm-btn" onclick="removeRoom(${r.id})" aria-label="Remove row"><i class="ti ti-trash"></i></button>
+      </div>
+      <div class="room-grid-3">
+        <div class="field-sm"><label>Room no.</label><input type="text" placeholder="e.g. 101" value="${r.room}" oninput="updateRoom(${r.id},'room',this.value)"></div>
+        <div class="field-sm"><label>Initial status</label><select onchange="updateRoom(${r.id},'initStatus',this.value)">${STATUS_OPTS.map(s => `<option ${s === r.initStatus ? "selected" : ""}>${s}</option>`).join("")}</select></div>
+        <div class="field-sm"><label>Final status</label><select onchange="updateRoom(${r.id},'finalStatus',this.value)">${STATUS_OPTS.map(s => `<option ${s === r.finalStatus ? "selected" : ""}>${s}</option>`).join("")}</select></div>
+      </div>
+      <div class="room-grid-2">
+        <div class="field-sm"><label>Time in</label><input type="time" value="${r.timeIn}" oninput="updateRoom(${r.id},'timeIn',this.value)"></div>
+        <div class="field-sm"><label>Time out</label><input type="time" value="${r.timeOut}" oninput="updateRoom(${r.id},'timeOut',this.value)"></div>
+      </div>
+      <div class="room-grid-2">
+        <div class="field-sm"><label>Remark</label><textarea placeholder="e.g. Guest requested extra towels" oninput="updateRoom(${r.id},'remark',this.value)">${r.remark}</textarea></div>
+        <div class="field-sm"><label>Observation</label><textarea placeholder="e.g. Broken AC reported" oninput="updateRoom(${r.id},'observation',this.value)">${r.observation}</textarea></div>
+      </div>
+    `;
+    el.appendChild(d);
+  });
+}
+
+/* ---- SUBMIT ---- */
+async function submitSheet() {
+  const name = document.getElementById("f-name").value.trim();
+  const date = document.getElementById("f-date").value;
+  if (!name) { toast("Enter staff name", "#E24B4A"); return; }
+  if (!date) { toast("Select a date", "#E24B4A"); return; }
+  if (rooms.length === 0) { toast("Add at least one room row", "#E24B4A"); return; }
+
+  const btn = document.getElementById("submit-btn");
+  btn.innerHTML = `<span class="spinner"></span> Submitting...`;
+  btn.disabled = true;
+
+  const tasksSummary = tasks.filter(t => t.done).length + "/" + tasks.length + " completed";
+  const payload = { staffName: name, date, tasksSummary, rooms };
+
+  const sub = {
+    id: Date.now(),
+    staffName: name,
+    date,
+    tasksSummary,
+    rooms: JSON.parse(JSON.stringify(rooms)),
+    status: "pending",
+    submittedAt: new Date().toLocaleString("en-NG")
+  };
+
+  submissions.unshift(sub);
+  save();
+
+  try {
+    await fetch(SHEET_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    toast("Submitted — waiting for manager approval", "#1D9E75");
+  } catch (e) {
+    toast("Saved locally. Check your internet connection.", "#BA7517");
+  }
+
+  btn.innerHTML = `<i class="ti ti-send"></i> Submit for review`;
+  btn.disabled = false;
+
+  document.getElementById("f-name").value = "";
+  rooms = [];
+  tasks = DEFAULT_TASKS.map(t => ({ text: t, done: false }));
+  renderTasks();
+  renderRooms();
+}
+
+/* ---- MANAGER ---- */
+function statusPill(s) {
+  const cl = s === "Clean" || s === "Vacant" ? "pill-clean" : s === "Dirty" ? "pill-dirty" : "pill-other";
+  return `<span class="status-pill ${cl}">${s || "—"}</span>`;
+}
+
+function approve(id) {
+  const sub = submissions.find(s => s.id === id);
+  if (!sub) return;
+  sub.status = "approved";
+  sub.reviewedAt = new Date().toLocaleString("en-NG");
+  save();
+  renderSubmissions();
+  toast("Approved and saved to Google Sheet", "#1D9E75");
+  fetch(SHEET_URL, {
+    method: "POST", mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...sub, action: "approve" })
+  }).catch(() => {});
+}
+
+function returnToStaff(id) {
+  const sub = submissions.find(s => s.id === id);
+  if (!sub) return;
+  sub.status = "returned";
+  sub.reviewedAt = new Date().toLocaleString("en-NG");
+  save();
+  renderSubmissions();
+  toast("Returned to staff for correction", "#BA7517");
+}
+
+function renderSubmissions() {
+  const el = document.getElementById("submissions-list");
+  if (!submissions.length) {
+    el.innerHTML = `<div class="empty-state"><i class="ti ti-inbox"></i><p>No submissions yet.<br>Staff entries will appear here.</p></div>`;
+    return;
+  }
+  el.innerHTML = "";
+  submissions.forEach(sub => {
+    const bClass = sub.status === "approved" ? "badge-approved" : sub.status === "returned" ? "badge-returned" : "badge-pending";
+    const bLabel = sub.status === "approved" ? "Approved" : sub.status === "returned" ? "Returned" : "Pending";
+    const rows = sub.rooms.map(r => `
+      <tr>
+        <td>${r.sn}</td>
+        <td>${r.room || "—"}</td>
+        <td>${statusPill(r.initStatus)}</td>
+        <td>${statusPill(r.finalStatus)}</td>
+        <td>${r.timeIn || "—"}</td>
+        <td>${r.timeOut || "—"}</td>
+        <td class="wrap-cell">${r.remark || "—"}</td>
+        <td class="wrap-cell">${r.observation || "—"}</td>
+      </tr>`).join("");
+
+    const d = document.createElement("div");
+    d.className = "sub-card";
+    d.innerHTML = `
+      <div class="sub-card-header">
+        <div>
+          <div class="sub-name"><i class="ti ti-user" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>${sub.staffName}</div>
+          <div class="sub-meta">${sub.date} &nbsp;·&nbsp; ${sub.submittedAt}</div>
+          <div class="sub-meta" style="margin-top:2px">Tasks: ${sub.tasksSummary}</div>
+        </div>
+        <span class="badge ${bClass}">${bLabel}</span>
+      </div>
+      <div class="table-wrap">
+        <table class="room-table">
+          <thead><tr>
+            <th>S/N</th><th>Room</th><th>Initial</th><th>Final</th>
+            <th>Time in</th><th>Time out</th><th>Remark</th><th>Observation</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      ${sub.status === "pending" ? `
+      <div class="mgr-actions">
+        <button class="btn-approve" onclick="approve(${sub.id})"><i class="ti ti-check"></i> Approve & save</button>
+        <button class="btn-return" onclick="returnToStaff(${sub.id})"><i class="ti ti-arrow-back-up"></i> Return to staff</button>
+      </div>` : sub.reviewedAt ? `<div style="font-size:11px;color:var(--text3);margin-top:8px">Reviewed: ${sub.reviewedAt}</div>` : ""}
+    `;
+    el.appendChild(d);
+  });
+}
+
+function exportApproved() {
+  const approved = submissions.filter(s => s.status === "approved");
+  if (!approved.length) { toast("No approved submissions to export", "#BA7517"); return; }
+  const wb = XLSX.utils.book_new();
+  const header = [["Timestamp", "Staff Name", "Date", "Tasks Summary", "S/N", "Room No.", "Initial Status", "Final Status", "Time In", "Time Out", "Remark", "Observation", "Reviewed At"]];
+  const rows = [];
+  approved.forEach(sub => {
+    sub.rooms.forEach(r => {
+      rows.push([sub.submittedAt, sub.staffName, sub.date, sub.tasksSummary, r.sn, r.room, r.initStatus, r.finalStatus, r.timeIn, r.timeOut, r.remark, r.observation, sub.reviewedAt || ""]);
+    });
+  });
+  const ws = XLSX.utils.aoa_to_sheet([...header, ...rows]);
+  ws["!cols"] = [14,14,10,14,5,9,12,12,8,8,20,20,16].map(w => ({ wch: w }));
+  XLSX.utils.book_append_sheet(wb, ws, "Approved Records");
+  XLSX.writeFile(wb, `Housekeeping_Approved_${new Date().toISOString().split("T")[0]}.xlsx`);
+  toast("Excel file downloaded");
+}
+
+/* ---- INIT ---- */
+document.getElementById("f-date").value = new Date().toISOString().split("T")[0];
+for (let i = 0; i < 8; i++) {
+  rooms.push({ id: Date.now() + i, sn: i + 1, room: "", initStatus: "Dirty", finalStatus: "Clean", timeIn: "", timeOut: "", remark: "", observation: "" });
+}
+renderTasks();
+renderRooms();
+updateBadge();
+</script>
+</body>
+</html>
